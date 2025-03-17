@@ -1,305 +1,222 @@
+import java.time.LocalTime;
 import java.util.*;
 
-enum ProjectType
-{
-    THEORETICAL,
-    PRACTICAL,
+// Interfaces
+interface PassengerCapable {
+    int getPassengerCapacity();
 }
 
-abstract  class Person
-{
-    protected  String name;
-    protected  Date dateOfBirth;
-    public Person(String name, Date dateOfBirth)
-    {
+interface CargoCapable {
+    double getMaxPayload();
+}
+
+// Abstract Aircraft class
+abstract class Aircraft implements Comparable<Aircraft> {
+    protected String name;
+    protected String model;
+    protected String tailNumber;
+
+    public Aircraft(String name, String model, String tailNumber) {
         this.name = name;
-        this.dateOfBirth = dateOfBirth;
+        this.model = model;
+        this.tailNumber = tailNumber;
     }
-    public String getName()
-    {
+
+    public String getName() {
         return name;
     }
-    public void SetName(String name)
-    {
-        this.name = name;
-    }
-    public Date getDateOfBirth()
-    {
-        return dateOfBirth;
-    }
-    public void SetDateOfBirth(Date dateOfBirth)
-    {
-        this.dateOfBirth = dateOfBirth;
+
+    @Override
+    public int compareTo(Aircraft other) {
+        return this.name.compareTo(other.name);
     }
 }
 
-class Student extends Person
-{
-    private  String registrationNumber;
-    public  Student(String name, Date dateOfBirth, String registrationNumber)
-    {
-        /// prin super apelam constructorul superclasei
-        ///  adica clasa Person
-        super(name, dateOfBirth);
-        this.registrationNumber = registrationNumber;
-    }
-    public String getRegistrationNumber()
-    {
-        return registrationNumber;
-    }
-    public void setRegistrationNumber(String registrationNumber)
-    {
-        this.registrationNumber = registrationNumber;
-    }
-    @Override
-    public boolean equals(Object obj)
-    {
-        /*
-          super.equals(obj) apeleaza metoda equals suprascrisa
-          in clasa parinte(Person).Vericam daca obiectele sunt egale
-          comform regurilor definite in Person.
-         */
-        if(!super.equals(obj)) return false;
-        Student student = (Student) obj;
-        return Objects.equals(registrationNumber, student.registrationNumber);
+// Specific aircraft types
+class Airliner extends Aircraft implements PassengerCapable {
+    private int passengerCapacity;
+
+    public Airliner(String name, String model, String tailNumber, int passengerCapacity) {
+        super(name, model, tailNumber);
+        this.passengerCapacity = passengerCapacity;
     }
 
     @Override
-    public int hashCode()
-    {
-        return Objects.hash(super.hashCode(), registrationNumber);
-    }
-    @Override
-    public String toString()
-    {
-        return "Student{" + super.toString() + ", registrationNumber='" + registrationNumber + "'}";
+    public int getPassengerCapacity() {
+        return passengerCapacity;
     }
 }
 
-class Teacher extends Person
-{
-    private List<Project> proposedProjects = new ArrayList<>();
-    public Teacher(String name, Date dateOfBirth)
-    {
-        super(name, dateOfBirth);
-    }
-    public void AddProjects(Project project)
-    {
-        if(!proposedProjects.contains(project))
-            proposedProjects.add(project);
-    }
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (!super.equals(obj)) return false;
-        Teacher teacher = (Teacher) obj;
-        return Objects.equals(proposedProjects, teacher.proposedProjects);
+class Freighter extends Aircraft implements CargoCapable {
+    private double maxPayload;
+
+    public Freighter(String name, String model, String tailNumber, double maxPayload) {
+        super(name, model, tailNumber);
+        this.maxPayload = maxPayload;
     }
 
     @Override
-    public int hashCode()
-    {
-        return Objects.hash(super.hashCode(), name);
-    }
-    @Override
-    public String toString()
-    {
-        return "Teacher{" + super.toString() + ", proposedProjects=" + proposedProjects + "}";
+    public double getMaxPayload() {
+        return maxPayload;
     }
 }
 
-class Project
-{
-    private String title;
-    private ProjectType type;
-    private Teacher teacher;
-    public Project(String title, ProjectType type, Teacher teacher)
-    {
-        this.title = title;
-        this.type = type;
-        this.teacher = teacher;
-    }
-    public String getTitle()
-    {
-        return title;
-    }
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
-    public ProjectType getType()
-    {
-        return type;
-    }
-    public void setType(ProjectType type)
-    {
-        this.type = type;
-    }
-    public Teacher getTeacher()
-    {
-        return teacher;
-    }
-    public void setTeacher(Teacher teacher)
-    {
-        this.teacher = teacher;
-    }
-    @Override
-    public boolean equals(Object obj)
-    {
-        /*
-         La fel ca mai sus, verificam daca this(clasa la care ne referim (this), (pointer alocat la zona de memorie,
-         so obiectul obj sunt aceeasi)
+class Drone extends Aircraft {
+    private int batteryLife;
 
-         */
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Project project = (Project) obj;
-        /*folosim metoda Object.equals la stringuri ca e mai sigur,
-         (Verificare de egalitate a șirurilor (String) fără riscul de NullPointerException)
-        */
-        return  Objects.equals(title, project.title) && type == project.type &&
-                Objects.equals(teacher, project.teacher);
-    }
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(title, type, teacher != null ? teacher.getName() : null);
-    }
-    @Override
-    public String toString()
-    {
-        return "Project{title='" + title + "', type=" + type + ", teacher=" + (teacher != null ? teacher.getName() : "None") + "}";
+    public Drone(String name, String model, String tailNumber, int batteryLife) {
+        super(name, model, tailNumber);
+        this.batteryLife = batteryLife;
     }
 }
+class Flight {
+    private String flightId;
+    private Aircraft aircraft;
+    private LocalTime landingStart;
+    private LocalTime landingEnd;
 
-class Problem
-{
-    private List<Student> students = new ArrayList<>();
-    private List<Project> projects = new ArrayList<>();
+    public Flight(String flightId, Aircraft aircraft, LocalTime landingStart, LocalTime landingEnd) {
+        this.flightId = flightId;
+        this.aircraft = aircraft;
+        this.landingStart = landingStart;
+        this.landingEnd = landingEnd;
+    }
+
+    public LocalTime getLandingStart() {
+        return landingStart;
+    }
+
+    public LocalTime getLandingEnd() {
+        return landingEnd;
+    }
+
+    /*Verific daca zborururile se interseacteaza*/
+
+    public boolean conflictsWith(Flight other) {
+        return !(this.landingEnd.isBefore(other.landingStart) || this.landingStart.isAfter(other.landingEnd));
+    }
+
     /*
-       HashMap- reprezinta (asemanatoare)structura de date Map in c++
-       vector de frecventa care verifica daca un element este pus sau nu
-       in Map, in complexitate optima
-    */
-    private Map<Student, Project> allocations = new HashMap<>();
-    private Map<Project, Student> matched = new HashMap<>();
-    private Map<Student, Boolean> visited = new HashMap<>();
-    private Map<Set<Student>, Integer> dpCache = new HashMap<>();
-    public void addStudent(Student student)
-    {
-        if(!students.contains(student))
-            students.add(student);
+      Daca avem avionul x care se intersecteaza cu avionul returneaza ca delay, nr de minute
+      de la aterizarea lui x pana la aterizarea lui y + 1(ca sa nu mai se intersecteze)
+     */
+
+    public void delayLanding(LocalTime newStart) {
+        long delayMinutes = java.time.Duration.between(this.landingStart, newStart).toMinutes();
+        this.landingStart = newStart;
+        this.landingEnd = this.landingEnd.plusMinutes(delayMinutes);
     }
-    public void addProject(Project project)
-    {
-        if(!projects.contains(project))
-            projects.add(project);
+
+    @Override
+    public String toString() {
+        return flightId + " (" + landingStart + " - " + landingEnd + ")";
     }
-    private boolean solve(Student student)
-    {
-        /*
-        algoritmului lui Hopcroft Karp
-        Complexitate O(radical din VE)
-         */
-        if (visited.getOrDefault(student, false)) return false;
-        visited.put(student, true);
-        for (Project project : projects)
-        {
-            if (!matched.containsKey(project))
-            {
-                matched.put(project, student);
-                allocations.put(student, project);
-                return true;
+}
+/*
+
+
+
+ */
+class Airport {
+    private int numberOfRunways;
+    private final PriorityQueue<List<Flight>> runwayQueue;
+
+    public Airport(int numberOfRunways) {
+        this.numberOfRunways = numberOfRunways;
+        this.runwayQueue = new PriorityQueue<>(Comparator.comparingInt(List::size));
+        for (int i = 0; i < numberOfRunways; i++) {
+            runwayQueue.add(new ArrayList<>());
+        }
+    }
+
+    /*Pun avioanele pe pista daca avionul curent se intersecteaza cu unul din avioanele
+    de la pista i, nu il pun pe pista i, altfel il pun.
+     */
+
+    public int assignRunway(Flight flight) {
+        for (List<Flight> runway : runwayQueue) {
+            boolean canAssign = true;
+            for (Flight f : runway) {
+                if (flight.conflictsWith(f)) {
+                    canAssign = false;
+                    break;
+                }
+            }
+            if (canAssign) {
+                runway.add(flight);
+                return runwayQueue.size();
             }
         }
-        for (Project project : projects)
-        {
-            Student previousStudent = matched.get(project);
-            if (previousStudent != null && solve(previousStudent))
-            {
-                matched.put(project, student);
-                allocations.put(student, project);
-                return true;
+        return -1;
+    }
+
+    /*
+    Sortam dupa plecare si in caz de egalitate dupa sorire
+    Nr de piste:3
+        Avem de ex: (1 , 2) , (1 , 7), (2 , 3), (2 , 4), (3 , 5), (3, 7) , (4 , 9)
+        O sa folosim o coada de prioritati, care va fi sortata dupa numarul de avioane de pe piste
+        Prima data punem primele x avioane, cate piste sunt
+        P1:(1 , 2)
+        P2:(1 , 7)
+        P3:(2 , 3)
+        (2 , 4) -> se integreaza in P1(nu exista conflict)
+        P1:(2 , 4)
+        P2:(1 , 7)
+        P3:(2 , 3)
+        (3 , 5)- este conflict cu (2 . 4), intarziem avionul, (3 , 5) -> (4 , 6)
+         P2:(1 , 7)
+        P3:(2 , 3)
+        P1:(3 , 5) , (4 , 6)
+        (3 , 7) este in conflict cu (1 , 7), il intarziem cu (8 , 12)
+        P3:(2 , 3)
+        P1:(3 , 5) , (4 , 6)
+        P2:(1 , 7), (8 , 12)
+        Analog, (4 , 9) il intarziem
+        Fiecare pista va avea 2 zboruri.
+     */
+
+    public void scheduleFlights(List<Flight> flights) {
+        flights.sort(Comparator.comparing(Flight::getLandingStart).thenComparing(Flight::getLandingEnd));
+
+        for (Flight flight : flights) {
+            List<Flight> bestRunway = runwayQueue.poll();
+
+            if (!bestRunway.isEmpty() && bestRunway.get(bestRunway.size() - 1).conflictsWith(flight)) {
+                LocalTime newStart = bestRunway.get(bestRunway.size() - 1).getLandingEnd().plusMinutes(1);
+                flight.delayLanding(newStart);
             }
-        }
-        return false;
-    }
-    public void allocateProjects()
-    {
-        for (Student student : students)
-        {
-            visited.clear();
-            solve(student);
+
+            bestRunway.add(flight);
+            runwayQueue.add(bestRunway);
         }
     }
 
-    public void printAllocations()
-    {
-        for (Map.Entry<Student, Project> entry : allocations.entrySet())
-            System.out.println(entry.getKey().getName() + " is assigned to " + entry.getValue().getTitle());
-    }
-
-    public boolean isMatchingPossible()
-    {
-        return checkHall(new HashSet<>(), 0);
-    }
-    private boolean checkHall(Set<Student> currentSet, int index)
-    {
-        if (index == students.size())
-        {
-            if (currentSet.isEmpty()) return true;
-            if (dpCache.containsKey(currentSet)) return dpCache.get(currentSet) >= currentSet.size();
-            int availableProjects = projects.size(); // Here, we assume all projects are available for all students
-            dpCache.put(new HashSet<>(currentSet), availableProjects);
-            return availableProjects >= currentSet.size();
+    public void printSchedule() {
+        int runwayNumber = 1;
+        for (List<Flight> runway : runwayQueue) {
+            System.out.println("Runway " + runwayNumber++ + ": " + runway);
         }
-
-        boolean withoutCurrent = checkHall(currentSet, index + 1);
-        currentSet.add(students.get(index));
-        boolean withCurrent = checkHall(currentSet, index + 1);
-        currentSet.remove(students.get(index));
-
-        return withoutCurrent && withCurrent;
-    }
-
-    public void printResult()
-    {
-        System.out.println("Matching possible: " + isMatchingPossible());
     }
 }
 
-public class Main {
+// Main class
+public class Main
+{
     public static void main(String[] args)
     {
-        /*Teacher teacher = new Teacher("Vasile Ion", new Date());
-        Project p1 = new Project("Practica SGBD", ProjectType.THEORETICAL, teacher);
-        Project p2 = new Project("Dezvoltare web", ProjectType.PRACTICAL, teacher);
-        Project p3 = new Project("Programare avansata", ProjectType.PRACTICAL, teacher);
-        teacher.AddProjects(p1);
-        teacher.AddProjects(p2);
-        teacher.AddProjects(p3);
-        Student student1 = new Student("Stefan", new Date(), "S123");
-        Student student2 = new Student("Laurentiu", new Date(), "S124");
-        Student student3 = new Student("George", new Date(), "S125");
-        Problem problem = new Problem();
-        problem.addProject(p1);
-        problem.addProject(p2);
-        problem.addProject(p3);
-        problem.addStudent(student1);
-        problem.addStudent(student2);
-        problem.addStudent(student3);
-        problem.allocateProjects();
-        problem.printAllocations();
-         */
-        Problem problem = new Problem();
-        Teacher teacher = new Teacher("Vasile Ion", new Date());
-        Project p1 = new Project("Practica SGBD", ProjectType.THEORETICAL, teacher);
-        Project p2 = new Project("Dezvoltare web", ProjectType.PRACTICAL, teacher);
-        teacher.AddProjects(p1);
-        teacher.AddProjects(p2);
-        Student student1 = new Student("Stefan", new Date(), "S123");
-        Student student2 = new Student("Laurentiu", new Date(), "S124");
-        Student student3 = new Student("George", new Date(), "S125");
-        problem.printResult();
+        Aircraft airliner = new Airliner("Boeing 747", "747-400", "N12345", 416);
+        Aircraft freighter = new Freighter("Cargo King", "C-130", "C5678", 20000);
+        Aircraft drone = new Drone("DroneX", "DX-200", "D999", 120);
+
+        List<Flight> flights = Arrays.asList(
+                new Flight("F101", airliner, LocalTime.of(10, 0), LocalTime.of(10, 30)),
+                new Flight("F102", freighter, LocalTime.of(10, 15), LocalTime.of(10, 45)),
+                new Flight("F103", drone, LocalTime.of(11, 0), LocalTime.of(11, 30))
+        );
+
+        Airport airport = new Airport(1);
+        airport.scheduleFlights(flights);
+
+        airport.printSchedule();
     }
 }
