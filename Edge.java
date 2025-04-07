@@ -1,8 +1,11 @@
 import java.awt.*;
+import java.io.Serializable;
 
-class Edge {
-    Point a, b; // Capetele liniei
-    boolean playerOne; // Cine a tras linia (true = jucătorul 1)
+///  convertit in flux de bytes
+
+class Edge implements Serializable {
+    Point a, b;
+    boolean playerOne;
 
     public Edge(Point a, Point b, boolean playerOne) {
         this.a = a;
@@ -11,6 +14,6 @@ class Edge {
     }
 
     public double getLength() {
-        return a.distance(b); // Distanța între cele două puncte
+        return a.distance(b);
     }
 }
