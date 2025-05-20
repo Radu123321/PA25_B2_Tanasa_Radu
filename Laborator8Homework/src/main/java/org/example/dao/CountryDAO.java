@@ -1,6 +1,10 @@
 package org.example.dao;
 
+import org.example.model.Country;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CountryDAO {
 
@@ -63,5 +67,30 @@ public class CountryDAO {
             System.err.println("Eroare la căutare ID țară: " + e.getMessage());
         }
         return -1;
+    }
+
+    public List<Country> findAllCountries() {
+        List<Country> countries = new ArrayList<>();
+        String sql = "SELECT id, name, code, continent_id FROM countries";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Country country = new Country(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("code"),
+                        rs.getInt("continent_id")
+                );
+                countries.add(country);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Eroare la extragerea țărilor: " + e.getMessage());
+        }
+
+        return countries;
     }
 }
